@@ -1,4 +1,13 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QGridLayout,
+    QPushButton,
+    QLineEdit,
+    QListWidget,
+    QLabel,
+    QHBoxLayout,
+)
 from PyQt6.QtCore import Qt
 
 from app.calculator import Calculator
@@ -12,12 +21,49 @@ class CalculatorWindow(QWidget):
         self.calculator = Calculator()
 
         self.setWindowTitle("Calculadora Científica")
-        self.setFixedSize(430, 560)
+        self.setFixedSize(500, 720)
 
         self.display = QLineEdit()
         self.display.setReadOnly(True)
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setStyleSheet(DISPLAY_STYLE)
+
+        self.history_label = QLabel("Histórico de cálculos")
+        self.history_label.setStyleSheet("""
+            QLabel {
+                font-size: 16px;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+        """)
+
+        self.history_list = QListWidget()
+        self.history_list.setStyleSheet("""
+            QListWidget {
+                font-size: 14px;
+                padding: 6px;
+                border-radius: 8px;
+                border: 1px solid #999;
+                background-color: #ffffff;
+            }
+        """)
+
+        self.clear_history_button = QPushButton("Limpar histórico")
+        self.clear_history_button.setFixedHeight(40)
+        self.clear_history_button.clicked.connect(self.clear_history)
+        self.clear_history_button.setStyleSheet("""
+            QPushButton {
+                font-size: 14px;
+                background-color: #d9534f;
+                color: white;
+                border-radius: 8px;
+                border: 1px solid #aaaaaa;
+            }
+
+            QPushButton:hover {
+                background-color: #c9302c;
+            }
+        """)
 
         self.setup_layout()
 
@@ -45,18 +91,24 @@ class CalculatorWindow(QWidget):
 
         for text, row, column in buttons:
             button = QPushButton(text)
-            button.setFixedSize(75, 55)
+            button.setFixedSize(85, 55)
             button.setStyleSheet(get_button_style(text))
             button.clicked.connect(lambda checked, value=text: self.handle_button_click(value))
 
             button_layout.addWidget(button, row, column)
 
         main_layout.addLayout(button_layout)
+
+        history_header_layout = QHBoxLayout()
+        history_header_layout.addWidget(self.history_label)
+
+        main_layout.addLayout(history_header_layout)
+        main_layout.addWidget(self.history_list)
+        main_layout.addWidget(self.clear_history_button)
+
         self.setLayout(main_layout)
 
     def handle_button_click(self, value: str):
-        current_text = self.display.text()
-
         if value == "C":
             self.clear_display()
 
@@ -121,5 +173,26 @@ class CalculatorWindow(QWidget):
     def calculate_result(self):
         expression = self.display.text()
         result = self.calculator.calculate(expression)
+
         self.display.setText(str(result))
-    
+
+        if result != "Erro" and expression:
+            self.update_history_list()
+
+    def update_history_list(self):
+        """
+        Atualiza a lista visual do histórico.
+        """
+        self.history_list.clear()
+
+        for item in self.calculator.get_history():
+            self.history_list.addItem(item)
+
+        self.history_list.scrollToBottom()
+
+    def clear_history(self):
+        """
+        Limpa o histórico da lógica e da interface.
+        """
+        self.calculator.clear_history()
+        self.history_list.clear()

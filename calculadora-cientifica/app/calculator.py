@@ -39,3 +39,20 @@ class Calculator:
         except Exception:
             return "Erro: Expressão inválida"
         
+        def add_to_history(self):
+            """
+            retorna o resultado da última expressão calculada.
+            """
+            history_item = f"{expression} = {result}"
+            self.history.append(history_item)
+
+        def get_history(self):
+            """
+            Retorna o histórico de cálculos realizados.
+            """
+            return self.history
+        def clear_history(self):
+            """
+            Limpa o histórico de cálculos.
+            """
+            self.history.clear()
