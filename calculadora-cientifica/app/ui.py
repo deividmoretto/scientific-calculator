@@ -196,3 +196,53 @@ class CalculatorWindow(QWidget):
         """
         self.calculator.clear_history()
         self.history_list.clear()
+
+    def keyPressEvent(self, event):
+        """
+        Permite controlar a calculadora pelo teclado físico.
+        """
+
+        key = event.key()
+        text = event.text()
+
+        allowed_characters = "0123456789+-*/()."
+
+        if text in allowed_characters:
+            self.add_to_display(text)
+
+        elif key in [Qt.Key.Key_Return, Qt.Key.Key_Enter]:
+            self.calculate_result()
+
+        elif key == Qt.Key.Key_Backspace:
+            self.remove_last_character()
+
+        elif key == Qt.Key.Key_Escape:
+            self.clear_display()
+
+        elif key == Qt.Key.Key_Delete:
+            self.clear_display()
+
+        # Atalhos para funções científicas
+        elif key == Qt.Key.Key_S:
+            self.add_to_display("sin(")
+
+        elif key == Qt.Key.Key_C:
+            self.add_to_display("cos(")
+
+        elif key == Qt.Key.Key_T:
+            self.add_to_display("tan(")
+
+        elif key == Qt.Key.Key_R:
+            self.add_to_display("sqrt(")
+
+        elif key == Qt.Key.Key_L:
+            self.add_to_display("log(")
+
+        elif key == Qt.Key.Key_N:
+            self.add_to_display("ln(")
+
+        elif key == Qt.Key.Key_P:
+            self.add_to_display("pi")
+
+        elif key == Qt.Key.Key_E:
+            self.add_to_display("e")    
